@@ -1,0 +1,121 @@
+---
+  
+
+  - name: Copy CloudWatch Agent Amazon Linux
+    copy:
+      src:    "{{ files_dir }}/{{ package_name_amazon }}"
+      dest:   "/tmp/{{ package_name_amazon }}"
+      force:  no
+    when: ansible_distribution == 'Amazon'
+    become: true
+
+
+  - name: "Installing /tmp/{{ package_name_amazon }}"
+    yum:
+      name: "/tmp/{{ package_name_amazon }}"
+      state: present
+    when: ansible_distribution == 'Amazon'
+    become: true
+
+
+  - name: Copy CloudWatch Agent CentOS
+    copy:
+      src:    "{{ files_dir }}/{{ package_name_centos }}"
+      dest:   "/tmp/{{ package_name_centos }}"
+      force:  no
+    when: ansible_distribution == 'CentOS'
+    become: true
+
+
+  - name: "Installing /tmp/{{ package_name_centos }}"
+    yum:
+      name: "/tmp/{{ package_name_centos }}"
+      state: present
+    when: ansible_distribution == 'CentOS'
+    become: true
+
+
+  - name: Copy CloudWatch Agent Debian
+    copy:
+      src:    "{{ files_dir }}/{{ package_name_debian }}"
+      dest:   "/tmp/{{ package_name_debian }}"
+      force:  no
+    when: ansible_distribution == 'Debian'
+    become: true
+
+
+  - name: "Installing /tmp/{{ package_name_debian }}"
+    apt:
+      deb: "/tmp/{{ package_name_debian }}"
+      state: present
+    when: ansible_distribution == 'Debian'
+    become: true
+
+
+  - name: Install EPEL Repository on Amazon Linux
+    shell: amazon-linux-extras install epel -y
+    when: ansible_distribution == 'Amazon'
+    become: true
+
+
+  - name: Install EPEL Repository on CentOS
+    yum:
+      name: epel-release
+      state: latest
+    when: ansible_distribution == 'CentOS'
+    become: True
+
+  
+  - name: Install collectd on Amazon/CentOS
+    yum:
+      name: collectd
+      state: present
+    when: ansible_distribution == 'CentOS' or ansible_distribution == 'Amazon'
+    become: true
+
+  - name: Install collectd on Debian
+    apt:
+      name: collectd
+      state: present
+    when: ansible_distribution == 'Debian'
+    become: true
+
+
+  - name: "Deploying {{ cw_remote_conf_dir }}/{{ cw_agent_remote_conf }}"
+    template:
+      src:  "{{ files_dir }}/{{ cw_agent_conf }}"
+      dest: "{{ cw_remote_conf_dir }}/{{ cw_agent_remote_conf }}"
+    become: true
+
+
+  - name: Create directory Credentials
+    file:
+      path: /root/.aws
+      state: directory
+    become: true
+
+
+  - name: Copy Credentials
+    copy:
+      src:    "{{ files_dir }}/credentials"
+      dest:   "/root/.aws/"
+      force:  no
+    become: true
+
+
+  - name: Add content common-config.toml
+    lineinfile:
+      path:   /opt/aws/amazon-cloudwatch-agent/etc/common-config.toml
+      regexp: "{{ item.regexp }}"
+      line:   "{{ item.line }}"
+      state:  present
+      backup: yes
+    become:   true
+    with_items:
+     - { regexp: '^#[credentials]',      line: '[credentials]' }
+     - { regexp: '^#shared_credential_file', line: 'shared_credential_file = "/root/.aws/credentials"' }
+
+
+  - name: Start CloudWatch Agent
+    shell: /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
+    become: true

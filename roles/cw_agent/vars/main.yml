@@ -1,0 +1,10 @@
+files_dir:    "/etc/ansible/roles/cw_agent/files"
+
+package_name_amazon: "os_amazon-cloudwatch-agent.rpm"
+package_name_centos: "os_centos-cloudwatch-agent.rpm"
+package_name_debian: "os_debian-cloudwatch-agent.deb"
+
+cw_agent_conf:        "config.json.j2"
+cw_agent_remote_conf: "config.json"
+cw_remote_conf_dir:   "/opt/aws/amazon-cloudwatch-agent/bin"
+
