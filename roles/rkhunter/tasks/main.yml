@@ -1,0 +1,31 @@
+---
+
+  - name: Copy Rkhunter
+    copy:
+      src: /etc/ansible/roles/rkhunter/files/rkhunter-1.4.6.tar.gz
+      dest: /tmp/
+       
+
+  - name: Extract File
+    unarchive:
+      src: /tmp/rkhunter-1.4.6.tar.gz
+      dest: /tmp/
+        
+
+  - name: Install RKhunter
+    shell: /tmp/rkhunter-1.4.6/installer.sh --layout default --install
+    args:    
+      chdir: /tmp/rkhunter-1.4.6/
+    become: true
+          
+
+  - name: Running Rootkit Hunter
+    shell: /tmp/rkhunter-1.4.6/files/rkhunter --check --sk >> /tmp/rkhunter.out
+    args:
+      chdir: /tmp/rkhunter-1.4.6/files/
+    become: true
+    ignore_errors: yes
+
+ 
+  - debug:
+      msg: All results have been written to the log file inside host /var/log/rkhunter.log and /tmp/rkhunter
