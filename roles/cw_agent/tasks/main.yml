@@ -95,7 +95,7 @@
     become: true
 
 
-  - name: Copy Credentials to host
+  - name: Copy Credentials to host.
     copy:
       src:    "{{ files_dir }}/credentials"
       dest:   "/root/.aws/"
