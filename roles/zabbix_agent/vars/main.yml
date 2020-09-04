@@ -1,0 +1,18 @@
+files_dir:    "/etc/ansible/roles/zabbix_agent/files"
+
+
+zabbix_agent_conf:        "zabbix_agentd.conf.j2"
+zabbix_agent_remote_conf: "zabbix_agentd.conf"
+zabbix_remote_conf_dir:   "/etc/zabbix"
+
+
+zabbix_host: "X"
+zabbix_port: "10051"
+
+
+zabbix_agent_port:    "10050"
+zabbix_agent_delay:   "1"
+zabbix_agent_timeout: "30"
+
+
+

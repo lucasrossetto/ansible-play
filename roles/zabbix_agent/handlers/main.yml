@@ -1,0 +1,8 @@
+---
+
+  - name: Restart zabbix-agent
+    service:
+      name: zabbix-agent
+      state: restarted
+    become: true
+
